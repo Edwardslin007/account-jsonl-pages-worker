@@ -934,9 +934,9 @@
               </span>
             </label>
             <input id="fileInput" type="file" accept=".jsonl,.json,.txt,application/json">
-            <textarea id="rawInput" spellcheck="false" placeholder='{"email":"demo@example.com","password":"pass","access_token":"AT...","refresh_token":"RT...","mailbox_url":"https://..."}'></textarea>
+            <textarea id="rawInput" spellcheck="false" placeholder='粘贴 JSON/JSONL 后会自动导入并开始每 3 秒轮询验证码。例如：{"email":"demo@example.com","password":"pass","access_token":"AT...","refresh_token":"RT...","mailbox_url":"https://..."}'></textarea>
             <div class="button-row">
-              <button class="btn" id="importBtn" type="button">导入并格式化</button>
+              <button class="btn" id="importBtn" type="button">手动导入</button>
               <button class="btn secondary" id="clearBtn" type="button">清空</button>
             </div>
             <div class="notice" id="notice"></div>
@@ -1109,7 +1109,10 @@
       reveal: false,
       jsonMode: "selected",
       pollTimer: null,
+      rawAutoImportTimer: null,
+      lastAutoImportedText: "",
       lastCode: "",
+      isRefreshingCode: false,
       workerProxyUrl: readSavedProxyUrl() || DEFAULT_WORKER_PROXY_URL,
     };
 
@@ -1606,7 +1609,8 @@
       renderJson();
     }
 
-    function importData(text, sourceName = "输入内容") {
+    function importData(text, sourceName = "输入内容", options = {}) {
+      const { autoStartPolling = false, silentInvalid = false } = options;
       try {
         const records = parseInput(text);
         if (!records.length) throw new Error("没有可导入的记录");
@@ -1614,10 +1618,19 @@
         state.records = records;
         state.accounts = records.map((item, index) => normalize(item, index));
         state.selectedIndex = state.accounts.length ? 0 : -1;
+        state.lastAutoImportedText = text.trim();
         setNotice(`${sourceName} 已导入 ${records.length} 条记录。`, "ok");
         applyFilters();
+        if (autoStartPolling && currentAccount() && currentAccount().mailboxUrl) {
+          els.autoPollToggle.checked = true;
+          startPolling();
+        }
+        return true;
       } catch (error) {
-        setNotice(error.message, "error");
+        if (!silentInvalid) {
+          setNotice(error.message, "error");
+        }
+        return false;
       }
     }
 
@@ -1625,7 +1638,23 @@
       if (!file) return;
       const text = await file.text();
       els.rawInput.value = text;
-      importData(text, file.name);
+      importData(text, file.name, { autoStartPolling: true });
+    }
+
+    function scheduleAutoImport() {
+      window.clearTimeout(state.rawAutoImportTimer);
+      const pendingText = els.rawInput.value.trim();
+      if (pendingText && pendingText !== state.lastAutoImportedText && state.pollTimer) {
+        stopPolling();
+      }
+      state.rawAutoImportTimer = window.setTimeout(() => {
+        const text = els.rawInput.value.trim();
+        if (!text || text === state.lastAutoImportedText) return;
+        importData(text, "自动识别输入内容", {
+          autoStartPolling: true,
+          silentInvalid: true,
+        });
+      }, 450);
     }
 
     async function copyText(value) {
@@ -1680,7 +1709,9 @@
     async function refreshCode() {
       const account = currentAccount();
       if (!account || !account.mailboxUrl) return;
+      if (state.isRefreshingCode) return;
 
+      state.isRefreshingCode = true;
       els.refreshCodeBtn.disabled = true;
       els.mailStatus.textContent = "读取中";
       els.codeLabel.textContent = "正在请求邮箱接口";
@@ -1720,6 +1751,7 @@
         els.copyCodeBtn.disabled = true;
         els.mailResponse.textContent = `${error.message}\n\n如果这里提示 Failed to fetch，通常是接码接口没有允许浏览器跨域访问。部署到 GitHub Pages 后请填写 Cloudflare Worker 代理地址，或点击“打开接码链接”直接查看。`;
       } finally {
+        state.isRefreshingCode = false;
         els.refreshCodeBtn.disabled = !(currentAccount() && currentAccount().mailboxUrl);
       }
     }
@@ -1743,8 +1775,8 @@
       const account = currentAccount();
       if (!account || !account.mailboxUrl) return;
       refreshCode();
-      state.pollTimer = window.setInterval(refreshCode, 12000);
-      els.mailHint.textContent = "自动刷新已开启：每 12 秒读取一次邮箱接码链接。";
+      state.pollTimer = window.setInterval(refreshCode, 3000);
+      els.mailHint.textContent = "自动刷新已开启：每 3 秒读取一次邮箱接码链接。";
     }
 
     function stopPolling() {
@@ -1773,9 +1805,10 @@
       URL.revokeObjectURL(url);
     }
 
-    els.importBtn.addEventListener("click", () => importData(els.rawInput.value));
+    els.importBtn.addEventListener("click", () => importData(els.rawInput.value, "手动导入内容", { autoStartPolling: true }));
     els.clearBtn.addEventListener("click", () => {
       stopPolling();
+      window.clearTimeout(state.rawAutoImportTimer);
       els.rawInput.value = "";
       els.fileInput.value = "";
       els.searchInput.value = "";
@@ -1785,11 +1818,13 @@
       state.accounts = [];
       state.filtered = [];
       state.selectedIndex = -1;
+      state.lastAutoImportedText = "";
       state.lastCode = "";
       setNotice("", "");
       render();
     });
     els.fileInput.addEventListener("change", event => readFile(event.target.files[0]));
+    els.rawInput.addEventListener("input", scheduleAutoImport);
     els.searchInput.addEventListener("input", applyFilters);
     els.filterSelect.addEventListener("change", applyFilters);
     els.revealToggle.addEventListener("change", event => {
