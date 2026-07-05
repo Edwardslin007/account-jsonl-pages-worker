@@ -1,0 +1,1874 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>账号与邮箱验证码工作台</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --ink: #101828;
+      --muted: #667085;
+      --line: #d0d7e2;
+      --line-strong: #a8b3c4;
+      --blue: #155eef;
+      --blue-soft: #eaf1ff;
+      --green: #087443;
+      --green-soft: #e7f6ec;
+      --amber: #a15c00;
+      --amber-soft: #fff4d6;
+      --red: #b42318;
+      --red-soft: #fff0ef;
+      --cyan: #047481;
+      --cyan-soft: #e8f7f9;
+      --shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+      --radius: 8px;
+      --sans: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: var(--sans);
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      width: min(1480px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 18px 0 34px;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: var(--radius);
+      background: #111827;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 22px;
+      line-height: 1.2;
+      font-weight: 780;
+    }
+
+    .subhead {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .privacy-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid #b7d7c8;
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--green-soft);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .privacy-chip::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 392px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head h2 {
+      font-size: 15px;
+      line-height: 1.2;
+      font-weight: 780;
+    }
+
+    .panel-head .hint {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .left-stack {
+      position: sticky;
+      top: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .import-body {
+      padding: 14px;
+    }
+
+    .dropzone {
+      display: grid;
+      min-height: 118px;
+      place-items: center;
+      padding: 16px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      color: var(--muted);
+      text-align: center;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .dropzone strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .dropzone.dragover {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    input[type="file"] {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #fff;
+      font-size: 13px;
+    }
+
+    textarea,
+    input[type="search"],
+    select {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    textarea:focus,
+    input[type="search"]:focus,
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.14);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      margin-top: 10px;
+      padding: 11px;
+      resize: vertical;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .btn,
+    .small-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: var(--radius);
+      white-space: nowrap;
+      text-decoration: none;
+      font-weight: 730;
+    }
+
+    .btn {
+      min-height: 38px;
+      padding: 0 13px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 13px;
+    }
+
+    .btn.secondary {
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .btn.warn {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .small-btn {
+      min-height: 31px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .small-btn.primary {
+      border-color: #b8c8ff;
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .small-btn.green {
+      border-color: #a6d8bd;
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .small-btn:disabled,
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.52;
+    }
+
+    .notice {
+      display: none;
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .notice.ok {
+      display: block;
+      border: 1px solid #b7d7c8;
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .notice.error {
+      display: block;
+      border: 1px solid #f2bab4;
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .controls {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 132px;
+      gap: 8px;
+    }
+
+    input[type="search"],
+    select {
+      width: 100%;
+      height: 38px;
+      padding: 0 10px;
+      font-size: 13px;
+    }
+
+    .toggle-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 9px;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 690;
+      white-space: nowrap;
+    }
+
+    .toggle input {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--blue);
+    }
+
+    .account-list {
+      max-height: 382px;
+      overflow: auto;
+      padding: 8px;
+    }
+
+    .account-card {
+      width: 100%;
+      display: grid;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+    }
+
+    .account-card:hover,
+    .account-card.active {
+      border-color: #9db5ff;
+      background: var(--blue-soft);
+    }
+
+    .account-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .account-email {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 13px;
+      font-weight: 780;
+      white-space: nowrap;
+    }
+
+    .account-id {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #eef2f7;
+      color: #475467;
+      font-size: 11px;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .badge.green {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .badge.amber {
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .badge.red {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .main-stack {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      min-height: 74px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      margin-top: 7px;
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 820;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .key-panel {
+      padding: 14px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-title h2 {
+      font-size: 16px;
+      font-weight: 790;
+    }
+
+    .selected-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .key-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .key-card {
+      display: grid;
+      gap: 8px;
+      min-height: 118px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .key-card.important {
+      border-color: #aac0ff;
+      background: var(--blue-soft);
+    }
+
+    .key-card.mail {
+      border-color: #a8dfe5;
+      background: var(--cyan-soft);
+    }
+
+    .key-card.auth {
+      border-color: #b8d9c5;
+      background: var(--green-soft);
+    }
+
+    .key-card.secret {
+      border-color: #efd18a;
+      background: var(--amber-soft);
+    }
+
+    .key-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .key-title {
+      font-size: 13px;
+      font-weight: 820;
+    }
+
+    .key-note {
+      color: #475467;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .key-value {
+      min-height: 38px;
+      padding: 8px;
+      border: 1px solid rgba(16, 24, 40, 0.12);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.76);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .key-value.empty {
+      color: var(--muted);
+      font-family: var(--sans);
+    }
+
+    .copy-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .mailbox-panel {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .code-box {
+      display: grid;
+      min-height: 112px;
+      place-items: center;
+      border: 1px solid #a8dfe5;
+      border-radius: var(--radius);
+      background: var(--cyan-soft);
+      text-align: center;
+    }
+
+    .code-value {
+      font-family: var(--mono);
+      font-size: 36px;
+      line-height: 1.1;
+      font-weight: 850;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      overflow-wrap: anywhere;
+    }
+
+    .code-label {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 690;
+    }
+
+    .mail-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .proxy-config {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+    }
+
+    .proxy-config label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .proxy-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .proxy-row input {
+      width: 100%;
+      min-width: 0;
+      height: 34px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      outline: none;
+      font-size: 12px;
+    }
+
+    .mail-response {
+      max-height: 190px;
+      overflow: auto;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      color: #344054;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .status-line {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .json-panel {
+      overflow: hidden;
+    }
+
+    .json-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .json-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .tab-btn {
+      min-height: 31px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .tab-btn.active {
+      border-color: #b8c8ff;
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .json-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 0;
+      min-height: 360px;
+    }
+
+    .json-view {
+      max-height: 520px;
+      overflow: auto;
+      padding: 14px;
+      border-right: 1px solid var(--line);
+      background: #0f172a;
+    }
+
+    .json-view pre {
+      margin: 0;
+      color: #dbeafe;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .json-key {
+      color: #93c5fd;
+      font-weight: 780;
+    }
+
+    .json-key.hot {
+      color: #fde68a;
+      background: rgba(253, 230, 138, 0.12);
+      border-radius: 4px;
+      padding: 1px 2px;
+    }
+
+    .json-string {
+      color: #bbf7d0;
+    }
+
+    .json-number {
+      color: #fcd34d;
+    }
+
+    .json-bool {
+      color: #fca5a5;
+    }
+
+    .explain {
+      padding: 14px;
+      background: var(--surface-2);
+    }
+
+    .explain h3 {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .explain-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .explain-item {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .explain-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .explain-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .empty-state {
+      display: grid;
+      min-height: 240px;
+      place-items: center;
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 10;
+      transform: translateY(14px);
+      opacity: 0;
+      pointer-events: none;
+      max-width: calc(100% - 36px);
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      background: #111827;
+      color: #fff;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 1160px) {
+      .workspace,
+      .detail-grid,
+      .json-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .left-stack {
+        position: static;
+      }
+
+      .json-view {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(100% - 18px, 1480px);
+      }
+
+      .app-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .key-grid,
+      .search-row,
+      .toggle-row,
+      .mail-actions,
+      .proxy-row {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row {
+        grid-template-columns: 1fr;
+      }
+
+      .code-value {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">AC</div>
+        <div>
+          <h1>账号与邮箱验证码工作台</h1>
+          <p class="subhead">导入 JSONL/JSON 后，集中查看邮箱、密码、AT、RT，并尝试实时读取邮箱验证码。</p>
+        </div>
+      </div>
+      <div class="privacy-chip">本地页面解析</div>
+    </header>
+
+    <section class="workspace">
+      <aside class="left-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>导入入口</h2>
+            <span class="hint">JSONL / JSON / TXT</span>
+          </div>
+          <div class="import-body">
+            <label class="dropzone" id="dropzone" for="fileInput">
+              <span>
+                <strong>拖入文件或点击选择</strong>
+                每行一个 JSON 对象，也支持 JSON 数组
+              </span>
+            </label>
+            <input id="fileInput" type="file" accept=".jsonl,.json,.txt,application/json">
+            <textarea id="rawInput" spellcheck="false" placeholder='{"email":"demo@example.com","password":"pass","access_token":"AT...","refresh_token":"RT...","mailbox_url":"https://..."}'></textarea>
+            <div class="button-row">
+              <button class="btn" id="importBtn" type="button">导入并格式化</button>
+              <button class="btn secondary" id="clearBtn" type="button">清空</button>
+            </div>
+            <div class="notice" id="notice"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>账号列表</h2>
+            <span class="hint" id="listCount">0 条</span>
+          </div>
+          <div class="controls">
+            <div class="search-row">
+              <input id="searchInput" type="search" placeholder="搜索邮箱、ID、状态">
+              <select id="filterSelect" aria-label="筛选">
+                <option value="all">全部</option>
+                <option value="hasMail">有接码</option>
+                <option value="hasPassword">有密码</option>
+                <option value="hasToken">有 AT/RT</option>
+                <option value="missing">缺字段</option>
+              </select>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle">
+                <input id="revealToggle" type="checkbox">
+                显示完整敏感值
+              </label>
+              <label class="toggle">
+                <input id="autoPollToggle" type="checkbox">
+                自动刷新验证码
+              </label>
+            </div>
+          </div>
+          <div class="account-list" id="accountList">
+            <div class="empty-state">
+              <div>
+                <strong>等待导入</strong>
+                导入后这里会显示可选择的账号。
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="main-stack">
+        <div class="summary" aria-label="统计">
+          <div class="metric">
+            <div class="metric-label">总账号</div>
+            <div class="metric-value" id="statTotal">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">有邮箱</div>
+            <div class="metric-value" id="statEmail">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">有密码</div>
+            <div class="metric-value" id="statPassword">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">有 AT/RT</div>
+            <div class="metric-value" id="statToken">0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">有接码</div>
+            <div class="metric-value" id="statMailbox">0</div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <section class="panel key-panel">
+            <div class="section-title">
+              <h2>当前账号关键信息</h2>
+              <span class="selected-meta" id="selectedMeta">未选择账号</span>
+            </div>
+            <div class="key-grid" id="keyGrid">
+              <div class="empty-state">
+                <div>
+                  <strong>请选择账号</strong>
+                  导入数据后点击左侧账号，可在这里查看重点字段。
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel mailbox-panel">
+            <div class="section-title">
+              <h2>邮箱接码</h2>
+              <span class="selected-meta" id="mailStatus">未读取</span>
+            </div>
+            <div class="code-box">
+              <div>
+                <div class="code-value" id="codeValue">------</div>
+                <div class="code-label" id="codeLabel">等待读取验证码</div>
+              </div>
+            </div>
+            <div class="mail-actions">
+              <button class="btn" id="refreshCodeBtn" type="button" disabled>刷新验证码</button>
+              <button class="btn secondary" id="copyCodeBtn" type="button" disabled>复制验证码</button>
+              <a class="small-btn primary" id="openMailboxLink" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">打开接码链接</a>
+              <button class="small-btn" id="copyMailboxBtn" type="button" disabled>复制接码链接</button>
+            </div>
+            <div class="proxy-config">
+              <label for="workerProxyInput">Cloudflare Worker 代理地址</label>
+              <div class="proxy-row">
+                <input id="workerProxyInput" type="url" placeholder="https://account-jsonl-mailbox-proxy.xxx.workers.dev">
+                <button class="small-btn green" id="saveProxyBtn" type="button">保存</button>
+              </div>
+            </div>
+            <p class="status-line" id="mailHint">GitHub Pages 上会通过 Cloudflare Worker 代理读取验证码；未配置代理时只能尝试直连或打开接码链接。</p>
+            <pre class="mail-response" id="mailResponse">暂无邮箱响应内容。</pre>
+          </section>
+        </div>
+
+        <section class="panel json-panel">
+          <div class="json-toolbar">
+            <div class="json-tabs">
+              <button class="tab-btn active" data-json-mode="selected" type="button">当前账号 JSON</button>
+              <button class="tab-btn" data-json-mode="all" type="button">全部 JSON</button>
+            </div>
+            <div class="copy-row">
+              <button class="small-btn" id="copyJsonBtn" type="button" disabled>复制格式化 JSON</button>
+              <button class="small-btn" id="downloadJsonBtn" type="button" disabled>下载 JSON</button>
+            </div>
+          </div>
+          <div class="json-layout">
+            <div class="json-view">
+              <pre id="jsonPreview">导入后这里会自动格式化 JSON，并高亮邮箱、密码、AT、RT、接码链接等字段。</pre>
+            </div>
+            <aside class="explain">
+              <h3>关键字段注释</h3>
+              <div class="explain-list">
+                <div class="explain-item">
+                  <strong>邮箱 email</strong>
+                  <span>账号登录或接收验证码的邮箱地址，通常是最常用的账号标识。</span>
+                </div>
+                <div class="explain-item">
+                  <strong>密码 password</strong>
+                  <span>账号的登录密码。页面默认隐藏，复制按钮复制的是完整密码。</span>
+                </div>
+                <div class="explain-item">
+                  <strong>AT access_token</strong>
+                  <span>访问令牌，像短期通行证，用来代表账号访问服务。</span>
+                </div>
+                <div class="explain-item">
+                  <strong>RT refresh_token</strong>
+                  <span>刷新令牌，像续期凭证，通常用来换取新的 AT。</span>
+                </div>
+                <div class="explain-item">
+                  <strong>邮箱接码链接 mailbox_url</strong>
+                  <span>用于读取邮箱最新邮件或验证码的接口链接，页面会尝试从这里实时提取验证码。</span>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const DEFAULT_WORKER_PROXY_URL = "https://account-jsonl-mailbox-proxy.edwardslin1130.workers.dev";
+
+    const state = {
+      records: [],
+      accounts: [],
+      filtered: [],
+      selectedIndex: -1,
+      reveal: false,
+      jsonMode: "selected",
+      pollTimer: null,
+      lastCode: "",
+      workerProxyUrl: readSavedProxyUrl() || DEFAULT_WORKER_PROXY_URL,
+    };
+
+    const els = {
+      fileInput: document.getElementById("fileInput"),
+      rawInput: document.getElementById("rawInput"),
+      dropzone: document.getElementById("dropzone"),
+      importBtn: document.getElementById("importBtn"),
+      clearBtn: document.getElementById("clearBtn"),
+      notice: document.getElementById("notice"),
+      searchInput: document.getElementById("searchInput"),
+      filterSelect: document.getElementById("filterSelect"),
+      revealToggle: document.getElementById("revealToggle"),
+      autoPollToggle: document.getElementById("autoPollToggle"),
+      accountList: document.getElementById("accountList"),
+      listCount: document.getElementById("listCount"),
+      statTotal: document.getElementById("statTotal"),
+      statEmail: document.getElementById("statEmail"),
+      statPassword: document.getElementById("statPassword"),
+      statToken: document.getElementById("statToken"),
+      statMailbox: document.getElementById("statMailbox"),
+      selectedMeta: document.getElementById("selectedMeta"),
+      keyGrid: document.getElementById("keyGrid"),
+      mailStatus: document.getElementById("mailStatus"),
+      codeValue: document.getElementById("codeValue"),
+      codeLabel: document.getElementById("codeLabel"),
+      refreshCodeBtn: document.getElementById("refreshCodeBtn"),
+      copyCodeBtn: document.getElementById("copyCodeBtn"),
+      openMailboxLink: document.getElementById("openMailboxLink"),
+      copyMailboxBtn: document.getElementById("copyMailboxBtn"),
+      workerProxyInput: document.getElementById("workerProxyInput"),
+      saveProxyBtn: document.getElementById("saveProxyBtn"),
+      mailHint: document.getElementById("mailHint"),
+      mailResponse: document.getElementById("mailResponse"),
+      jsonPreview: document.getElementById("jsonPreview"),
+      copyJsonBtn: document.getElementById("copyJsonBtn"),
+      downloadJsonBtn: document.getElementById("downloadJsonBtn"),
+      toast: document.getElementById("toast"),
+    };
+
+    const aliases = {
+      id: ["id", "db_id", "account_id", "chatgpt_account_id", "workspace_id", "project_id", "user_id"],
+      email: ["email", "login_identity", "account_claims_email", "mail", "mailbox_email", "username"],
+      password: ["password", "pwd", "pass", "email_password", "mail_password", "login_password"],
+      at: ["AT", "at", "access_token", "accessToken", "access-token"],
+      rt: ["RT", "rt", "refresh_token", "refreshToken", "refresh-token"],
+      mailboxUrl: ["mailbox_url", "mailboxUrl", "mailapi_url", "email_code_url", "emailCodeUrl", "mail_url", "receive_url"],
+      platform: ["platform", "source", "provider"],
+      status: ["status", "state"],
+      createdAt: ["created_at", "createdAt", "create_time", "created_time"],
+      lastUsed: ["last_used", "lastUsed", "last_login", "updated_at", "updatedAt"],
+    };
+
+    const hotKeys = new Set([
+      "email",
+      "login_identity",
+      "account_claims_email",
+      "password",
+      "access_token",
+      "AT",
+      "refresh_token",
+      "RT",
+      "mailbox_url",
+      "mailapi_url",
+      "mailbox_connection",
+    ]);
+
+    function setNotice(message, type) {
+      els.notice.textContent = message || "";
+      els.notice.className = "notice" + (message ? ` ${type}` : "");
+    }
+
+    function readSavedProxyUrl() {
+      try {
+        return localStorage.getItem("accountJsonlWorkerProxyUrl") || "";
+      } catch {
+        return "";
+      }
+    }
+
+    function saveProxyUrl(value) {
+      try {
+        if (value) {
+          localStorage.setItem("accountJsonlWorkerProxyUrl", value);
+        } else {
+          localStorage.removeItem("accountJsonlWorkerProxyUrl");
+        }
+      } catch {
+      }
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 1500);
+    }
+
+    function toText(value) {
+      if (value === null || value === undefined) return "";
+      if (typeof value === "string") return value;
+      if (typeof value === "number" || typeof value === "boolean") return String(value);
+      return JSON.stringify(value);
+    }
+
+    function pick(obj, keys) {
+      for (const key of keys) {
+        if (obj && Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== "") {
+          return obj[key];
+        }
+      }
+      return "";
+    }
+
+    function getNested(obj, path) {
+      return path.split(".").reduce((value, key) => {
+        if (!value || typeof value !== "object") return "";
+        return value[key] ?? "";
+      }, obj);
+    }
+
+    function parseInput(text) {
+      const trimmed = text.replace(/^\uFEFF/, "").trim();
+      if (!trimmed) return [];
+
+      if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          return Array.isArray(parsed) ? parsed : [parsed];
+        } catch {
+          if (trimmed.startsWith("[")) {
+            throw new Error("JSON 数组格式不正确");
+          }
+        }
+      }
+
+      const lines = trimmed.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      const records = [];
+      const errors = [];
+
+      lines.forEach((line, index) => {
+        try {
+          records.push(JSON.parse(line.replace(/,$/, "")));
+        } catch (error) {
+          errors.push(`第 ${index + 1} 行：${error.message}`);
+        }
+      });
+
+      if (errors.length) {
+        throw new Error(errors.slice(0, 5).join("；") + (errors.length > 5 ? `；还有 ${errors.length - 5} 行错误` : ""));
+      }
+
+      return records;
+    }
+
+    function formatDate(value) {
+      if (!value && value !== 0) return "";
+      const numeric = Number(value);
+      let date;
+      if (Number.isFinite(numeric)) {
+        date = new Date(numeric > 100000000000 ? numeric : numeric * 1000);
+      } else {
+        date = new Date(value);
+      }
+      if (Number.isNaN(date.getTime())) return toText(value);
+      return date.toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    function normalize(record, index) {
+      const mailbox = record.mailbox && typeof record.mailbox === "object" ? record.mailbox : {};
+      const mailboxConnection = toText(record.mailbox_connection || "");
+      const mailboxUrlFromConnection = mailboxConnection.includes("----")
+        ? mailboxConnection.split("----").slice(1).join("----")
+        : "";
+
+      const email = pick(record, aliases.email) || mailbox.email || getNested(record, "profile.email");
+      const password = pick(record, aliases.password) || mailbox.password || getNested(record, "mailbox.pass");
+      const mailboxUrl = pick(record, aliases.mailboxUrl) || mailbox.mailapi_url || mailbox.url || mailboxUrlFromConnection;
+
+      const account = {
+        index,
+        id: toText(pick(record, aliases.id) || index + 1),
+        email: toText(email),
+        password: toText(password),
+        at: toText(pick(record, aliases.at)),
+        rt: toText(pick(record, aliases.rt)),
+        mailboxUrl: toText(mailboxUrl),
+        platform: toText(pick(record, aliases.platform)),
+        status: toText(pick(record, aliases.status)),
+        createdAt: formatDate(pick(record, aliases.createdAt)),
+        lastUsed: formatDate(pick(record, aliases.lastUsed)),
+        raw: record,
+      };
+
+      account.searchText = [
+        account.id,
+        account.email,
+        account.platform,
+        account.status,
+        account.mailboxUrl,
+      ].join(" ").toLowerCase();
+      account.hasToken = Boolean(account.at || account.rt);
+      account.missing = !account.email || !account.password || !account.at || !account.rt || !account.mailboxUrl;
+      return account;
+    }
+
+    function mask(value, type = "secret") {
+      const text = toText(value);
+      if (!text) return "";
+      if (state.reveal) return text;
+      if (type === "email") {
+        const [name, domain] = text.split("@");
+        if (!domain) return text.length > 8 ? `${text.slice(0, 4)}****${text.slice(-2)}` : "****";
+        return `${name.slice(0, 3)}****@${domain}`;
+      }
+      if (type === "url") return maskUrl(text);
+      if (text.length <= 10) return "••••••";
+      return `${text.slice(0, 8)}••••${text.slice(-6)}`;
+    }
+
+    function maskUrl(value) {
+      try {
+        const url = new URL(value);
+        for (const key of url.searchParams.keys()) {
+          if (/(key|token|secret|password|api|code)/i.test(key)) {
+            url.searchParams.set(key, "••••••");
+          }
+        }
+        return url.toString();
+      } catch {
+        return value.length > 28 ? `${value.slice(0, 18)}••••${value.slice(-8)}` : "••••••";
+      }
+    }
+
+    function currentAccount() {
+      if (state.selectedIndex < 0) return null;
+      return state.accounts[state.selectedIndex] || null;
+    }
+
+    function applyFilters() {
+      const query = els.searchInput.value.trim().toLowerCase();
+      const filter = els.filterSelect.value;
+      state.filtered = state.accounts.filter(account => {
+        const matchedQuery = !query || account.searchText.includes(query);
+        const matchedFilter =
+          filter === "all" ||
+          (filter === "hasMail" && Boolean(account.mailboxUrl)) ||
+          (filter === "hasPassword" && Boolean(account.password)) ||
+          (filter === "hasToken" && account.hasToken) ||
+          (filter === "missing" && account.missing);
+        return matchedQuery && matchedFilter;
+      });
+      render();
+    }
+
+    function renderStats() {
+      els.statTotal.textContent = state.accounts.length;
+      els.statEmail.textContent = state.accounts.filter(item => item.email).length;
+      els.statPassword.textContent = state.accounts.filter(item => item.password).length;
+      els.statToken.textContent = state.accounts.filter(item => item.hasToken).length;
+      els.statMailbox.textContent = state.accounts.filter(item => item.mailboxUrl).length;
+      els.listCount.textContent = `${state.filtered.length} / ${state.accounts.length} 条`;
+    }
+
+    function createBadge(text, kind) {
+      const span = document.createElement("span");
+      span.className = `badge ${kind || ""}`.trim();
+      span.textContent = text;
+      return span;
+    }
+
+    function renderList() {
+      els.accountList.textContent = "";
+
+      if (!state.accounts.length) {
+        els.accountList.innerHTML = '<div class="empty-state"><div><strong>等待导入</strong>导入后这里会显示可选择的账号。</div></div>';
+        return;
+      }
+
+      if (!state.filtered.length) {
+        els.accountList.innerHTML = '<div class="empty-state"><div><strong>没有匹配账号</strong>调整搜索或筛选条件。</div></div>';
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      state.filtered.forEach(account => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "account-card" + (account.index === state.selectedIndex ? " active" : "");
+        button.addEventListener("click", () => selectAccount(account.index));
+
+        const top = document.createElement("div");
+        top.className = "account-card-top";
+        const email = document.createElement("div");
+        email.className = "account-email";
+        email.textContent = account.email || "缺邮箱";
+        const platform = createBadge(account.platform || "未知", account.platform ? "green" : "amber");
+        top.append(email, platform);
+
+        const id = document.createElement("div");
+        id.className = "account-id";
+        id.textContent = `ID: ${account.id}`;
+
+        const badges = document.createElement("div");
+        badges.className = "badge-row";
+        badges.append(
+          createBadge(account.password ? "密码" : "缺密码", account.password ? "green" : "red"),
+          createBadge(account.at ? "AT" : "缺 AT", account.at ? "green" : "red"),
+          createBadge(account.rt ? "RT" : "缺 RT", account.rt ? "green" : "red"),
+          createBadge(account.mailboxUrl ? "接码" : "缺接码", account.mailboxUrl ? "green" : "red"),
+        );
+
+        button.append(top, id, badges);
+        fragment.appendChild(button);
+      });
+
+      els.accountList.appendChild(fragment);
+    }
+
+    function fieldCard(config) {
+      const card = document.createElement("div");
+      card.className = `key-card ${config.kind || ""}`.trim();
+
+      const head = document.createElement("div");
+      head.className = "key-head";
+      const title = document.createElement("div");
+      title.className = "key-title";
+      title.textContent = config.title;
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.className = "small-btn";
+      copy.textContent = "复制";
+      copy.disabled = !config.raw;
+      copy.addEventListener("click", () => copyText(config.raw));
+      head.append(title, copy);
+
+      const value = document.createElement("div");
+      value.className = "key-value" + (!config.raw ? " empty" : "");
+      value.textContent = config.value || "缺失";
+
+      const note = document.createElement("div");
+      note.className = "key-note";
+      note.textContent = config.note;
+
+      card.append(head, value, note);
+      return card;
+    }
+
+    function renderKeys() {
+      const account = currentAccount();
+      els.keyGrid.textContent = "";
+
+      if (!account) {
+        els.selectedMeta.textContent = "未选择账号";
+        els.keyGrid.innerHTML = '<div class="empty-state"><div><strong>请选择账号</strong>导入数据后点击左侧账号，可在这里查看重点字段。</div></div>';
+        renderMailbox();
+        return;
+      }
+
+      els.selectedMeta.textContent = `#${account.index + 1} ${account.status || ""}`.trim();
+      const fragment = document.createDocumentFragment();
+      [
+        {
+          title: "邮箱地址",
+          raw: account.email,
+          value: mask(account.email, "email"),
+          kind: "mail",
+          note: "用于登录账号、接收验证码，也是定位账号最方便的字段。",
+        },
+        {
+          title: "邮箱/账号密码",
+          raw: account.password,
+          value: mask(account.password),
+          kind: "secret",
+          note: "登录时会用到的密码。默认隐藏，点击复制会复制完整值。",
+        },
+        {
+          title: "AT / access_token",
+          raw: account.at,
+          value: mask(account.at),
+          kind: "auth",
+          note: "访问令牌，像临时通行证，通常有有效期。",
+        },
+        {
+          title: "RT / refresh_token",
+          raw: account.rt,
+          value: mask(account.rt),
+          kind: "auth",
+          note: "刷新令牌，常用来换取新的 AT，需要重点保管。",
+        },
+        {
+          title: "邮箱接码链接",
+          raw: account.mailboxUrl,
+          value: mask(account.mailboxUrl, "url"),
+          kind: "important",
+          note: "读取最新邮件或验证码的接口链接，右侧会尝试实时请求它。",
+        },
+        {
+          title: "账号 ID",
+          raw: account.id,
+          value: account.id,
+          kind: "",
+          note: "用于区分不同账号或数据库记录，方便检索和排查。",
+        },
+      ].forEach(item => fragment.appendChild(fieldCard(item)));
+
+      els.keyGrid.appendChild(fragment);
+      renderMailbox();
+    }
+
+    function resetMailboxView(message = "等待读取验证码") {
+      state.lastCode = "";
+      els.codeValue.textContent = "------";
+      els.codeLabel.textContent = message;
+      els.copyCodeBtn.disabled = true;
+      els.mailResponse.textContent = "暂无邮箱响应内容。";
+      els.mailStatus.textContent = "未读取";
+    }
+
+    function renderMailbox() {
+      const account = currentAccount();
+      const hasUrl = Boolean(account && account.mailboxUrl);
+      els.refreshCodeBtn.disabled = !hasUrl;
+      els.copyMailboxBtn.disabled = !hasUrl;
+
+      if (hasUrl) {
+        els.openMailboxLink.href = account.mailboxUrl;
+        els.openMailboxLink.setAttribute("aria-disabled", "false");
+        els.openMailboxLink.classList.remove("disabled");
+      } else {
+        els.openMailboxLink.href = "#";
+        els.openMailboxLink.setAttribute("aria-disabled", "true");
+      }
+
+      resetMailboxView(hasUrl ? "点击刷新读取验证码" : "当前账号没有接码链接");
+    }
+
+    function selectAccount(index) {
+      state.selectedIndex = index;
+      stopPolling();
+      render();
+      if (els.autoPollToggle.checked) {
+        startPolling();
+      }
+    }
+
+    function renderJson() {
+      const account = currentAccount();
+      const source = state.jsonMode === "all" ? state.records : account ? account.raw : null;
+      const canExport = Boolean(source);
+      els.copyJsonBtn.disabled = !canExport;
+      els.downloadJsonBtn.disabled = !canExport;
+
+      if (!source) {
+        els.jsonPreview.textContent = "导入后这里会自动格式化 JSON，并高亮邮箱、密码、AT、RT、接码链接等字段。";
+        return;
+      }
+
+      const formatted = JSON.stringify(source, null, 2);
+      els.jsonPreview.innerHTML = syntaxHighlight(formatted);
+    }
+
+    function syntaxHighlight(jsonText) {
+      return escapeHtml(jsonText).replace(/(&quot;([^&]+)&quot;)(\s*:)?|(-?\d+(?:\.\d+)?)|\b(true|false|null)\b/g, (match, quoted, key, colon, number, bool) => {
+        if (colon) {
+          const keyClass = hotKeys.has(key) ? "json-key hot" : "json-key";
+          return `<span class="${keyClass}">${quoted}</span>${colon}`;
+        }
+        if (quoted) return `<span class="json-string">${quoted}</span>`;
+        if (number) return `<span class="json-number">${number}</span>`;
+        return `<span class="json-bool">${bool}</span>`;
+      });
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function render() {
+      els.workerProxyInput.value = state.workerProxyUrl;
+      renderStats();
+      renderList();
+      renderKeys();
+      renderJson();
+    }
+
+    function importData(text, sourceName = "输入内容") {
+      try {
+        const records = parseInput(text);
+        if (!records.length) throw new Error("没有可导入的记录");
+        stopPolling();
+        state.records = records;
+        state.accounts = records.map((item, index) => normalize(item, index));
+        state.selectedIndex = state.accounts.length ? 0 : -1;
+        setNotice(`${sourceName} 已导入 ${records.length} 条记录。`, "ok");
+        applyFilters();
+      } catch (error) {
+        setNotice(error.message, "error");
+      }
+    }
+
+    async function readFile(file) {
+      if (!file) return;
+      const text = await file.text();
+      els.rawInput.value = text;
+      importData(text, file.name);
+    }
+
+    async function copyText(value) {
+      const text = toText(value);
+      if (!text) return;
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const helper = document.createElement("textarea");
+          helper.value = text;
+          helper.style.position = "fixed";
+          helper.style.left = "-9999px";
+          document.body.appendChild(helper);
+          helper.select();
+          document.execCommand("copy");
+          helper.remove();
+        }
+        showToast("已复制");
+      } catch {
+        showToast("复制失败");
+      }
+    }
+
+    function extractCode(payload) {
+      const text = typeof payload === "string" ? payload : JSON.stringify(payload);
+      const labeledPatterns = [
+        /(?:验证码|校验码|动态码|code|verification)[^\d]{0,18}(\d{4,8})/i,
+        /(\d{4,8})[^\d]{0,12}(?:验证码|校验码|code)/i,
+      ];
+      for (const pattern of labeledPatterns) {
+        const match = text.match(pattern);
+        if (match) return match[1];
+      }
+
+      const allCodes = text.match(/\b\d{4,8}\b/g);
+      return allCodes ? allCodes[0] : "";
+    }
+
+    function prettifyPayload(payload) {
+      if (typeof payload === "string") {
+        try {
+          return JSON.stringify(JSON.parse(payload), null, 2);
+        } catch {
+          return payload;
+        }
+      }
+      return JSON.stringify(payload, null, 2);
+    }
+
+    async function refreshCode() {
+      const account = currentAccount();
+      if (!account || !account.mailboxUrl) return;
+
+      els.refreshCodeBtn.disabled = true;
+      els.mailStatus.textContent = "读取中";
+      els.codeLabel.textContent = "正在请求邮箱接口";
+
+      try {
+        const response = await fetch(mailboxRequestUrl(account.mailboxUrl), {
+          method: "GET",
+          cache: "no-store",
+        });
+        const contentType = response.headers.get("content-type") || "";
+        const payload = contentType.includes("application/json")
+          ? await response.json()
+          : await response.text();
+        const pretty = prettifyPayload(payload);
+        const code = extractCode(payload);
+
+        els.mailResponse.textContent = pretty || "接口返回为空。";
+        els.mailStatus.textContent = response.ok ? "已读取" : `HTTP ${response.status}`;
+
+        if (code) {
+          state.lastCode = code;
+          els.codeValue.textContent = code;
+          els.codeLabel.textContent = `提取时间：${new Date().toLocaleTimeString("zh-CN")}`;
+          els.copyCodeBtn.disabled = false;
+          showToast("验证码已更新");
+        } else {
+          state.lastCode = "";
+          els.codeValue.textContent = "未找到";
+          els.codeLabel.textContent = "没有匹配到 4-8 位验证码";
+          els.copyCodeBtn.disabled = true;
+        }
+      } catch (error) {
+        state.lastCode = "";
+        els.mailStatus.textContent = "读取失败";
+        els.codeValue.textContent = "失败";
+        els.codeLabel.textContent = "可能被浏览器跨域策略拦截";
+        els.copyCodeBtn.disabled = true;
+        els.mailResponse.textContent = `${error.message}\n\n如果这里提示 Failed to fetch，通常是接码接口没有允许浏览器跨域访问。部署到 GitHub Pages 后请填写 Cloudflare Worker 代理地址，或点击“打开接码链接”直接查看。`;
+      } finally {
+        els.refreshCodeBtn.disabled = !(currentAccount() && currentAccount().mailboxUrl);
+      }
+    }
+
+    function mailboxRequestUrl(url) {
+      const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+      if (state.workerProxyUrl) {
+        const workerUrl = new URL(state.workerProxyUrl);
+        workerUrl.pathname = "/api/mailbox";
+        workerUrl.search = `?url=${encodeURIComponent(url)}`;
+        return workerUrl.toString();
+      }
+      if (location.protocol.startsWith("http") && localHosts.has(location.hostname)) {
+        return `/api/mailbox?url=${encodeURIComponent(url)}`;
+      }
+      return url;
+    }
+
+    function startPolling() {
+      stopPolling();
+      const account = currentAccount();
+      if (!account || !account.mailboxUrl) return;
+      refreshCode();
+      state.pollTimer = window.setInterval(refreshCode, 12000);
+      els.mailHint.textContent = "自动刷新已开启：每 12 秒读取一次邮箱接码链接。";
+    }
+
+    function stopPolling() {
+      if (state.pollTimer) {
+        window.clearInterval(state.pollTimer);
+        state.pollTimer = null;
+      }
+      els.mailHint.textContent = "GitHub Pages 上会通过 Cloudflare Worker 代理读取验证码；未配置代理时只能尝试直连或打开接码链接。";
+    }
+
+    function currentJsonText() {
+      const account = currentAccount();
+      const source = state.jsonMode === "all" ? state.records : account ? account.raw : null;
+      return source ? JSON.stringify(source, null, 2) : "";
+    }
+
+    function download(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    els.importBtn.addEventListener("click", () => importData(els.rawInput.value));
+    els.clearBtn.addEventListener("click", () => {
+      stopPolling();
+      els.rawInput.value = "";
+      els.fileInput.value = "";
+      els.searchInput.value = "";
+      els.filterSelect.value = "all";
+      els.autoPollToggle.checked = false;
+      state.records = [];
+      state.accounts = [];
+      state.filtered = [];
+      state.selectedIndex = -1;
+      state.lastCode = "";
+      setNotice("", "");
+      render();
+    });
+    els.fileInput.addEventListener("change", event => readFile(event.target.files[0]));
+    els.searchInput.addEventListener("input", applyFilters);
+    els.filterSelect.addEventListener("change", applyFilters);
+    els.revealToggle.addEventListener("change", event => {
+      state.reveal = event.target.checked;
+      render();
+    });
+    els.autoPollToggle.addEventListener("change", event => {
+      if (event.target.checked) {
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    });
+    els.refreshCodeBtn.addEventListener("click", refreshCode);
+    els.copyCodeBtn.addEventListener("click", () => copyText(state.lastCode));
+    els.copyMailboxBtn.addEventListener("click", () => {
+      const account = currentAccount();
+      if (account) copyText(account.mailboxUrl);
+    });
+    els.saveProxyBtn.addEventListener("click", () => {
+      const value = els.workerProxyInput.value.trim().replace(/\/+$/, "");
+      if (value) {
+        try {
+          const url = new URL(value);
+          if (url.protocol !== "https:" && url.hostname !== "localhost" && url.hostname !== "127.0.0.1") {
+            throw new Error("线上代理地址建议使用 https");
+          }
+          state.workerProxyUrl = value;
+          saveProxyUrl(value);
+          showToast("代理地址已保存");
+        } catch {
+          showToast("代理地址格式不正确");
+          return;
+        }
+      } else {
+        state.workerProxyUrl = "";
+        saveProxyUrl("");
+        showToast("已清空代理地址");
+      }
+      renderMailbox();
+    });
+    els.openMailboxLink.addEventListener("click", event => {
+      if (els.openMailboxLink.getAttribute("aria-disabled") === "true") {
+        event.preventDefault();
+      }
+    });
+    els.copyJsonBtn.addEventListener("click", () => copyText(currentJsonText()));
+    els.downloadJsonBtn.addEventListener("click", () => {
+      const text = currentJsonText();
+      if (text) download(state.jsonMode === "all" ? "accounts.formatted.json" : "account.formatted.json", text, "application/json;charset=utf-8");
+    });
+
+    document.querySelectorAll("[data-json-mode]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.jsonMode = button.dataset.jsonMode;
+        document.querySelectorAll("[data-json-mode]").forEach(item => item.classList.toggle("active", item === button));
+        renderJson();
+      });
+    });
+
+    ["dragenter", "dragover"].forEach(name => {
+      els.dropzone.addEventListener(name, event => {
+        event.preventDefault();
+        els.dropzone.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(name => {
+      els.dropzone.addEventListener(name, event => {
+        event.preventDefault();
+        els.dropzone.classList.remove("dragover");
+      });
+    });
+
+    els.dropzone.addEventListener("drop", event => {
+      readFile(event.dataTransfer.files[0]);
+    });
+
+    render();
+  </script>
+</body>
+</html>

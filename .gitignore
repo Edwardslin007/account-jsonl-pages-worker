@@ -1,0 +1,13 @@
+node_modules/
+
+.env
+.env.*
+.dev.vars
+.wrangler/
+*.log
+npm-debug.log*
+
+accounts*.json
+accounts*.jsonl
+*.secret.json
+*.private.json

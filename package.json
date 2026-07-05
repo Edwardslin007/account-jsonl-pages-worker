@@ -1,0 +1,15 @@
+{
+  "name": "account-jsonl-pages-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "GitHub Pages frontend with a Cloudflare Worker mailbox proxy.",
+  "scripts": {
+    "worker:dev": "wrangler dev --local --port 8788",
+    "worker:deploy": "wrangler deploy",
+    "worker:whoami": "wrangler whoami"
+  },
+  "devDependencies": {
+    "wrangler": "^4.107.0"
+  }
+}
